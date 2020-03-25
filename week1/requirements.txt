@@ -1,2 +1,2 @@
-watson-developer-cloud==2.10.1
+ibm_watson==4.3.0
 pip==20.0.2

@@ -1,72 +1,77 @@
+# D2TaO8K6QUODuk-eNvagaKL9PxQnA2tGMcM54qzhJeb3
+
+
+# coding=utf-8
 import json
-import os
-from ibm_watson import VisualRecognitionV4
-from ibm_watson.visual_recognition_v4 import FileWithMetadata, TrainingDataObject, Location, AnalyzeEnums
+from ibm_watson import LanguageTranslatorV3
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 
-authenticator = IAMAuthenticator(
-    'D2TaO8K6QUODuk-eNvagaKL9PxQnA2tGMcM54qzhJeb3')
-service = VisualRecognitionV4(
-    '2018-03-19',
+authenticator = IAMAuthenticator('D2TaO8K6QUODuk-eNvagaKL9PxQnA2tGMcM54qzhJeb3')
+language_translator = LanguageTranslatorV3(
+    version='2018-05-01',
     authenticator=authenticator)
-service.set_service_url(
-    'https://gateway.watsonplatform.net/visual-recognition/api')
+language_translator.set_service_url('https://gateway.watsonplatform.net/language-translator/api')
 
-# create a classifier
-my_collection = service.create_collection(
-    name='',
-    description='testing for python'
-).get_result()
-collection_id = my_collection.get('collection_id')
+## Translate
+translation = language_translator.translate(
+    text=['Hello'], model_id='en-es').get_result()
+print(json.dumps(translation, indent=2, ensure_ascii=False))
 
-# add images
-with open(os.path.join(os.path.dirname(__file__), './assets/puppy.jpg'), 'rb') as giraffe_info:
-    add_images_result = service.add_images(
-        collection_id,
-        images_file=[FileWithMetadata(giraffe_info)],
-    ).get_result()
-print(json.dumps(add_images_result, indent=2))
-image_id = add_images_result.get('images')[0].get('image_id')
+# List identifiable languages
+# languages = language_translator.list_identifiable_languages().get_result()
+# print(json.dumps(languages, indent=2))
 
-# add image training data
-training_data = service.add_image_training_data(
-    collection_id,
-    image_id,
-    objects=[
-        TrainingDataObject(object='giraffe training data',
-                           location=Location(64, 270, 755, 784))
-    ]).get_result()
-print(json.dumps(training_data, indent=2))
+# # Identify
+# language = language_translator.identify(
+#     'Language translator translates text from one language to another').get_result()
+# print(json.dumps(language, indent=2))
 
-# update object metadata
-updated_object_metadata = service.update_object_metadata(
-    collection_id=collection_id,
-    object='giraffe training data',
-    new_object='updated giraffe training data').get_result()
-print(json.dumps(updated_object_metadata, indent=2))
+# # List models
+# models = language_translator.list_models(
+#     source='en').get_result()
+# print(json.dumps(models, indent=2))
 
-# train collection
-train_result = service.train(collection_id).get_result()
-print(json.dumps(train_result, indent=2))
+# # Create model
+# with open('glossary.tmx', 'rb') as glossary:
+#     response = language_translator.create_model(
+#         base_model_id='en-es',
+#         name='custom-english-to-spanish',
+#         forced_glossary=glossary).get_result()
+#     print(json.dumps(response, indent=2))
 
-# training usage
-training_usage = service.get_training_usage()
-print(json.dumps(training_usage, indent=2))
+# # Delete model
+# response = language_translator.delete_model(model_id='<YOUR MODEL ID>').get_result()
+# print(json.dumps(response, indent=2))
 
-# analyze
-dog_path = os.path.join(os.path.dirname(__file__), './assets/puppy.jpg')
-giraffe_path = os.path.join(os.path.dirname(
-    __file__), '../resources/my-giraffe.jpeg')
-with open(dog_path, 'rb') as dog_file, open(giraffe_path, 'rb') as giraffe_files:
-    analyze_images = service.analyze(
-        collection_ids=[collection_id],
-        features=[AnalyzeEnums.Features.OBJECTS.value],
-        images_file=[
-            FileWithMetadata(dog_file),
-            FileWithMetadata(giraffe_files)
-        ],
-        image_url=['https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/American_Eskimo_Dog.jpg/1280px-American_Eskimo_Dog.jpg']).get_result()
-    print(json.dumps(analyze_images, indent=2))
+# # Get model details
+# model = language_translator.get_model(model_id='<YOUR MODEL ID>').get_result()
+# print(json.dumps(model, indent=2))
 
-# delete collection
-service.delete_collection(collection_id)
+#### Document Translation ####
+# List Documents
+# result = language_translator.list_documents().get_result()
+# print(json.dumps(result, indent=2))
+#
+# # Translate Document
+# with open('en.pdf', 'rb') as file:
+#     result = language_translator.translate_document(
+#         file=file,
+#         file_content_type='application/pdf',
+#         filename='en.pdf',
+#         model_id='en-fr').get_result()
+#     print(json.dumps(result, indent=2))
+#
+# # Document Status
+# result = language_translator.get_document_status(
+#     document_id='{document id}').get_result()
+# print(json.dumps(result, indent=2))
+#
+# # Translated Document
+# with open('translated.pdf', 'wb') as f:
+#     result = language_translator.get_translated_document(
+#         document_id='{document id}',
+#         accept='application/pdf').get_result()
+#     f.write(result.content)
+#
+# # Delete Document
+# language_translator.delete_document(document_id='{document id}')
