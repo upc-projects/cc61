@@ -43,7 +43,6 @@ heuristics = {
     "Vaslui": 199,
     "Zerind": 374
 }
-
 """
 Best First Search Greedy algorithm
 
@@ -65,6 +64,7 @@ def bfs_shortest_path(graph, start, end):
         if node not in explored:
             neighbours = graph[node]
             for neighbour in neighbours:
+                print(heuristics[neighbour])
                 new_path = list(path)
                 new_path.append(neighbour)
                 queue.append(new_path)
@@ -77,5 +77,5 @@ def bfs_shortest_path(graph, start, end):
 
 
 if __name__ == "__main__":
-    results = bfs_shortest_path(graph, 'Zerind', 'Bucharest')
+    results = bfs_shortest_path(graph, 'Arad', 'Bucharest')
     print(results)
